@@ -3,45 +3,12 @@
     "allow_duplicate_names": "true",
     "development": false,
     "continuous": false,
+    "serverless": true,
     "channel": "PREVIEW",
     "edition": "{{ edition }}",
     "photon": true,
-    "target": "{{ wh_target }}_DLT_{{ edition }}_{{ scale_factor }}_wh",
-    "clusters": [
-        {
-            "label": "default",
-            "spark_conf": {
-                {% if worker_node_count == 0 %}
-                "spark.master": "local[*, 4]",
-                "spark.databricks.cluster.profile": "singleNode",
-                "spark.databricks.adaptive.localShuffleReader.enabled": "true",
-                {% endif %}
-                "pipelines.applyChangesPreviewEnabled": "true",
-                "spark.databricks.photon.scan.enabled": "true",
-                "spark.databricks.photon.photonRowToColumnar.enabled": "true",
-                "spark.databricks.photon.sort.enabled": "true",
-                {% if edition != "PRO" %}
-                "spark.databricks.streaming.forEachBatch.optimized.enabled": "true",
-                "spark.databricks.streaming.forEachBatch.optimized.fastPath.enabled": "true",
-                {% endif %}
-                "spark.databricks.photon.window.experimental.features.enabled": "true",
-                "spark.databricks.preemption.enabled": "false",
-                "spark.databricks.delta.schema.autoMerge.enabled": "true",
-                "spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite": "true",
-                "spark.databricks.photon.window.enabled": "true",
-                "spark.sql.shuffle.partitions": {{ shuffle_partitions }},
-                "spark.databricks.photon.allDataSources.enabled": "true"
-            },
-            "node_type_id": "{{ worker_node_type }}",
-            "driver_node_type_id": "{{ driver_node_type }}",
-            {% if worker_node_count == 0 %}
-            "custom_tags": {
-                "ResourceClass": "SingleNode"
-            },
-            {% endif %}
-            "num_workers": {{ worker_node_count }}
-        }
-    ],
+    "catalog": "main",
+    "schema": "{{ wh_target }}_DLT_{{ edition }}_{{ scale_factor }}_wh",
     "libraries": [
         {
             "notebook": {

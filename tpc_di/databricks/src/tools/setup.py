@@ -7,34 +7,57 @@ import collections
 # COMMAND ----------
 
 def api_call(json_payload=None, request_type=None, api_endpoint=None):
-  headers = {'Content-type': 'application/json', 'Accept':'*/*', 'Authorization': f'Bearer {TOKEN}'}
-  if request_type == "POST":
-    response = requests.post(f"{API_URL}{api_endpoint}", json=json_payload, headers=headers)
-  elif request_type == "GET":
-    response = requests.get(f"{API_URL}{api_endpoint}", json=json_payload, headers=headers)
-  else:
-    print(f"Invalid request type: {request_type}")
-    return
-  status_cd = response.status_code
-  return response
+    headers = {
+        "Content-type": "application/json",
+        "Accept": "*/*",
+        "Authorization": f"Bearer {TOKEN}",
+    }
+    if request_type == "POST":
+        response = requests.post(
+            f"{API_URL}{api_endpoint}", json=json_payload, headers=headers
+        )
+    elif request_type == "GET":
+        response = requests.get(
+            f"{API_URL}{api_endpoint}", json=json_payload, headers=headers
+        )
+    else:
+        print(f"Invalid request type: {request_type}")
+        return
+    status_cd = response.status_code
+    return response
+
 
 def get_node_types():
-  response = api_call(json_payload=None, request_type="GET", api_endpoint="/api/2.0/clusters/list-node-types")
-  node_types_list = json.loads(response.text)['node_types']
-  node_types_dict = {}
-  for node in node_types_list:
-    node_type_id = node.pop('node_type_id')
-    node_types_dict[node_type_id] = node
-  return collections.OrderedDict(sorted(node_types_dict.items()))
+    response = api_call(
+        json_payload=None,
+        request_type="GET",
+        api_endpoint="/api/2.0/clusters/list-node-types",
+    )
+    node_types_list = json.loads(response.text)["node_types"]
+    node_types_dict = {}
+    for node in node_types_list:
+        node_type_id = node.pop("node_type_id")
+        node_types_dict[node_type_id] = node
+    return collections.OrderedDict(sorted(node_types_dict.items()))
+
 
 def get_dbr_versions():
-  response = api_call(json_payload=None, request_type="GET", api_endpoint="/api/2.0/clusters/spark-versions")
-  dbr_versions_list = json.loads(response.text)['versions']
-  dbr_versions_dict = {}
-  for dbr in dbr_versions_list:
-    if not any(invalid in dbr['name'] for invalid in invalid_dbr_list) and float(dbr['name'].split()[0]) > min_dbr_version:
-      dbr_versions_dict[dbr['key']] = dbr['name']
-  return collections.OrderedDict(sorted(dbr_versions_dict.items(), reverse=True))
+    response = api_call(
+        json_payload=None,
+        request_type="GET",
+        api_endpoint="/api/2.0/clusters/spark-versions",
+    )
+    dbr_versions_list = json.loads(response.text)["versions"]
+    dbr_versions_dict = {}
+    for dbr in dbr_versions_list:
+        if (
+            not any(invalid in dbr["name"] for invalid in invalid_dbr_list)
+            and float(dbr["name"].split()[0]) > min_dbr_version
+            and "LTS" in dbr["name"]
+            and "2.12" in dbr["name"]  # xml library only works against 2.12
+        ):
+            dbr_versions_dict[dbr["key"]] = dbr["name"]
+    return collections.OrderedDict(sorted(dbr_versions_dict.items(), reverse=True))
 
 # COMMAND ----------
 

@@ -50,8 +50,9 @@
                 "node_type_id": "{{ worker_node_type }}",
                 "num_workers": "{{ cust_mgmt_worker_count }}",
                 "enable_elastic_disk": true,
-                "data_security_mode": "LEGACY_SINGLE_USER_STANDARD",
-                "runtime_engine": "STANDARD"
+                "data_security_mode": "DATA_SECURITY_MODE_DEDICATED",
+                "runtime_engine": "STANDARD",
+                "kind": "CLASSIC_PREVIEW"
             }
         }
     ],

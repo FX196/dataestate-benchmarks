@@ -11,6 +11,11 @@
 
 # COMMAND ----------
 
+# MAGIC %sql
+# MAGIC USE CATALOG main;
+
+# COMMAND ----------
+
 import json
 
 with open("../../tools/traditional_config.json", "r") as json_conf:
@@ -30,7 +35,7 @@ files_directory = f"{tpcdi_directory}sf={scale_factor}"
 # COMMAND ----------
 
 # DBTITLE 1,Read the XML file and create a temp view on the raw data as all string values
-spark.read.format('xml') \
+spark.read.format('com.databricks.spark.xml') \
   .options(rowTag=table_conf['rowTag'], inferSchema=False) \
   .load(f"""{files_directory}/{table_conf['path']}/{table_conf['filename']}""") \
   .createOrReplaceTempView("v_CustomerMgmt")
