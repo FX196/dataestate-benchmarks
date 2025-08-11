@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- <!DOCTYPE schema SYSTEM "structure/pdgfSchema.dtd">  BROKEN if used with "xmlns:xsi="-->
 
 <!--
@@ -651,7 +651,7 @@ xsi:noNamespaceSchemaLocation="structure/pdgfSchema.xsd">
 			<gen_UpdateActionTypeGenerator>
 				<newName>I</newName>
 				<changeName>U</changeName>
-				<deleteName>U</deleteName>
+				<deleteName>D</deleteName>
 			</gen_UpdateActionTypeGenerator>
 		</field>
 		<field name="cdc_dsn" size="" type="NUMERIC" primary="true" unique="true" updatePercentage="100">
@@ -1038,9 +1038,9 @@ xsi:noNamespaceSchemaLocation="structure/pdgfSchema.xsd">
 			<gen_tpc.di.generators.CustMgmtUpdateActionTypeGenerator>
 				<newCustomer>I</newCustomer>
 				<changeCustomer>U</changeCustomer>
-				<deleteCustomer>U</deleteCustomer>
+				<deleteCustomer>D</deleteCustomer>
 				<newAccount>I</newAccount>
-				<deletAccount>U</deletAccount>
+				<deletAccount>D</deletAccount>
 				<changeAccount>U</changeAccount>
 			</gen_tpc.di.generators.CustMgmtUpdateActionTypeGenerator>
 		</field>
@@ -2249,7 +2249,7 @@ xsi:noNamespaceSchemaLocation="structure/pdgfSchema.xsd">
 			<gen_UpdateActionTypeGenerator>
 				<newName>I</newName>
 				<changeName>U</changeName>
-				<deleteName>U</deleteName>
+				<deleteName>D</deleteName>
 			</gen_UpdateActionTypeGenerator>
 		</field>
 		<field name="cdc_dsn" size="" type="NUMERIC" updatePercentage="100" primary="true" unique="true">
