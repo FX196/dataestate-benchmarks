@@ -31,7 +31,7 @@
         }
     ],
     "configuration": {
-        "files_directory": "{{ tpcdi_directory }}",
+        "files_directory": "/tmp/tpcdi/ingestion/{{ job_name }}/",
         "scale_factor": "{{ scale_factor }}",
         "staging_db": "{{ wh_target }}_DLT_{{ scale_factor }}_stage",
         "raw_tables": "HR, DimDate, Industry, StatusType, TaxRate, TradeType, DimTime, TradeHistory, TradeIncremental, BatchDate, WatchHistory, CustomerIncremental, ProspectRaw, AccountIncremental, DailyMarketIncremental, TradeHistoryRaw, HoldingHistory, HoldingIncremental, CashTransactionHistory, CashTransactionIncremental, WatchIncremental",
