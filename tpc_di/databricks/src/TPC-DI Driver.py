@@ -35,3 +35,7 @@ dbutils.notebook.exit(f"Intentional notebook stoppage command, to confirm your w
 
 # DBTITLE 1,Run This Cell to Build Your Workflow!
 # MAGIC %run ./workflow_builder
+
+# COMMAND ----------
+
+
