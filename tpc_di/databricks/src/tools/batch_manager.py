@@ -3,6 +3,10 @@ import os
 
 # COMMAND ----------
 
+# MAGIC %run ./file_utils
+
+# COMMAND ----------
+
 def get_available_batches(central_path):
     """Discover available batch directories in central data location."""
     dbfs_path = f"/dbfs{central_path}"
@@ -29,9 +33,7 @@ def copy_batch_to_ingestion(central_path, job_name, batch_number):
     
     print(f"Copying batch {batch_number} from {source_path} to {target_path}")
     
-    # Reuse existing copy_directory function from data_generator
-    from tools.data_generator import copy_directory
-    
+    # Use copy_directory function from file_utils
     try:
         result = copy_directory(f"/dbfs{source_path}", f"/dbfs{target_path}", overwrite=True)
         return result is not None

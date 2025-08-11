@@ -2,9 +2,12 @@
 import os
 import concurrent.futures
 import requests
-import shutil
 import subprocess
 import shlex
+
+# COMMAND ----------
+
+# MAGIC %run ./file_utils
 
 # COMMAND ----------
 
@@ -27,24 +30,6 @@ Scale Factor:               {data_config['scale_factor']}
 
 # COMMAND ----------
 
-def move_file(source_location, target_location):
-  dbutils.fs.cp(source_location, target_location) 
-  return f"Finished moving {source_location} to {target_location}"
-
-def copy_directory(source_dir, target_dir, overwrite):
-  if os.path.exists(target_dir) and overwrite:
-    print(f"Overwrite set to true. Deleting: {target_dir}.")
-    shutil.rmtree(target_dir)
-    print(f"Deleted {target_dir}.")
-  try:
-    dst = shutil.copytree(source_dir, target_dir)
-    print(f"Copied {source_dir} to {target_dir} succesfully!")
-    return dst
-  except FileExistsError:
-    print(f"The folder you're trying to write to exists. Please delete it or set overwrite=True.")
-  except FileNotFoundError:
-    print(f"The folder you're trying to copy doesn't exist: {source_dir}")
-    
 def generate_data():
   datagen_path     = f"{data_config['tpcdi_directory']}datagen/"
   driver_tmp_path  = f"{DRIVER_ROOT}{datagen_path}"
