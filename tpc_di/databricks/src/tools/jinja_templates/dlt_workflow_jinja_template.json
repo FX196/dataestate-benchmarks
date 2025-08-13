@@ -58,8 +58,29 @@
     ],
     "tasks": [
         {
+            "task_key": "Cleanup-Ingestion-Directory",
+            "run_if": "ALL_SUCCESS",
+            "notebook_task": {
+                "notebook_path": "{{ repo_src_path }}/tools/batch_cleanup",
+                "base_parameters": {
+                    "job_name": "{{ job_name }}"
+                },
+                "source": "WORKSPACE"
+            },
+            "job_cluster_key": "{{ job_name }}",
+            "timeout_seconds": 0,
+            "email_notifications": {
+                "no_alert_for_skipped_runs": false
+            }
+        },
+        {
             "task_key": "Prepare-Batch-1",
             "run_if": "ALL_SUCCESS",
+            "depends_on": [
+                {
+                    "task_key": "Cleanup-Ingestion-Directory"
+                }
+            ],
             "notebook_task": {
                 "notebook_path": "{{ repo_src_path }}/tools/batch_preparation",
                 "base_parameters": {
@@ -197,27 +218,6 @@
                 "pipeline_id": "{{ pipeline_id }}",
                 "full_refresh": false
             },
-            "timeout_seconds": 0,
-            "email_notifications": {
-                "no_alert_for_skipped_runs": false
-            }
-        },
-        {
-            "task_key": "Cleanup-Ingestion-Directory",
-            "run_if": "ALL_SUCCESS",
-            "depends_on": [
-                {
-                    "task_key": "TPC-DI-DLT-PIPELINE-Batch-3"
-                }
-            ],
-            "notebook_task": {
-                "notebook_path": "{{ repo_src_path }}/tools/batch_cleanup",
-                "base_parameters": {
-                    "job_name": "{{ job_name }}"
-                },
-                "source": "WORKSPACE"
-            },
-            "job_cluster_key": "{{ job_name }}",
             "timeout_seconds": 0,
             "email_notifications": {
                 "no_alert_for_skipped_runs": false

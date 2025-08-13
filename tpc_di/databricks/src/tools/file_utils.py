@@ -16,6 +16,7 @@ def copy_directory(source_dir, target_dir, overwrite):
         shutil.rmtree(target_dir)
         print(f"Deleted {target_dir}.")
     try:
+        print(f"Copying {source_dir} to {target_dir}")
         dst = shutil.copytree(source_dir, target_dir)
         print(f"Copied {source_dir} to {target_dir} succesfully!")
         return dst

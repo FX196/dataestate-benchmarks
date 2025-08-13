@@ -27,9 +27,14 @@ def get_ingestion_path(job_name, batch_number):
 
 def copy_batch_to_ingestion(central_path, job_name, batch_number):
     """Copy batch data from central location to job-specific ingestion path."""
+    # Extract scale factor from central path (e.g., "/tmp/tpcdi/sf=10" -> "10")
+    scale_factor = central_path.split("sf=")[1] if "sf=" in central_path else "10"
+
     source_path = f"{central_path}/Batch{batch_number}"
     target_base_path = get_ingestion_path(job_name, batch_number)
-    target_path = f"{target_base_path}/Batch{batch_number}"
+
+    # Create the sf={scale_factor} subdirectory structure that CustomerMgmtRaw expects
+    target_path = f"{target_base_path}/sf={scale_factor}/Batch{batch_number}"
     
     print(f"Copying batch {batch_number} from {source_path} to {target_path}")
     

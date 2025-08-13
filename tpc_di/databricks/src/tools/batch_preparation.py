@@ -10,9 +10,17 @@
 # COMMAND ----------
 
 # Get parameters from the workflow
+
+# Preparing batch 1 for job Yuhong-Chen-TPCDI-incremental-SF10-DLT-ADVANCED
+# Central data path: /tmp/tpcdi/sf=10
+
 central_path = dbutils.widgets.get("central_path")
 job_name = dbutils.widgets.get("job_name") 
 batch_number = int(dbutils.widgets.get("batch_number"))
+
+# central_path = "/tmp/tpcdi/sf=10"
+# job_name = "Yuhong-Chen-TPCDI-incremental-SF10-DLT-ADVANCED"
+# batch_number = 1
 
 print(f"Preparing batch {batch_number} for job {job_name}")
 print(f"Central data path: {central_path}")
@@ -27,9 +35,12 @@ try:
     
     # Update the pipeline configuration to point to this batch
     # The DLT pipeline will read from the ingestion directory
-    dbutils.notebook.exit(f"SUCCESS: Batch {batch_number} prepared at {ingestion_path}")
+    print(f"SUCCESS: Batch {batch_number} prepared at {ingestion_path}")
     
 except Exception as e:
     error_msg = f"FAILED: Error preparing batch {batch_number}: {str(e)}"
-    print(error_msg)
-    dbutils.notebook.exit(error_msg) 
+    raise Exception(error_msg)
+
+# COMMAND ----------
+
+
