@@ -11,7 +11,7 @@
 -- MAGIC * This includes: 
 -- MAGIC   * Prospect (Customer and Prospect need data from the other table and join on name/address - which you cannot get until data is coalesced)
 -- MAGIC   * Account table needs each change of Customer record to get the surrogate key of the customer record. This only occurs once a Customer record gets updated
--- MAGIC 
+-- MAGIC
 -- MAGIC ### Staging Customer table unions the historical to the incremental
 -- MAGIC ~~1) Window results by customerid and order by the update timestamp~~  
 -- MAGIC ~~2) Then coalesce the current row to the last row and ignore nulls~~  
@@ -167,7 +167,7 @@ WHERE effectivedate < enddate
 -- MAGIC 2) Then take min/max batchid for the batchid/recordbatchid respectively
 -- MAGIC 3) Then do a window to take the latest record per agencyid (QUALIFY WINDOW where ROW=1)
 -- MAGIC 4) From here its just business logic for marketingnameplate and other joins
--- MAGIC 
+-- MAGIC
 -- MAGIC This is made slightly more complicated since we need to join to DimCustomer to find out if the prospect is also a customer - which necessitates the DimCustomer staging table
 
 -- COMMAND ----------
@@ -410,7 +410,7 @@ LEFT JOIN LIVE.DimBroker b
 -- MAGIC * As of February 2023, Photon does NOT support the UNBOUNDED PRECEDING WINDOW statement needed for the business logic of this table (previous year high/low amount and date for each stock symbol)
 -- MAGIC * Therefore, expect this table to take the longest execution when run in Photon runtime as it comes out of Photon - we can revisit when this functionality is added to Photon AFTER DBR 13+
 -- MAGIC * Additionally, the logic looks funky as there is not fast native way to retrieve the amount AND date for the previous year low/high values. The fastest execution I have found is the one below (tried a few others but they were slower - even if the code was more concise)  
--- MAGIC 
+-- MAGIC
 -- MAGIC **Steps**
 -- MAGIC 1) Union the historical and incremental DailyMarket tables
 -- MAGIC 2) Find out the previous year min/max for each symbol. Store in temp staging table since this needs multiple self-joins (calculate it once)
@@ -623,7 +623,9 @@ JOIN LIVE.DimAccount da
 
 -- COMMAND ----------
 
-CREATE OR REFRESH LIVE TABLE FactHoldings (${FactHoldings.schema}) AS SELECT 
+CREATE
+OR REFRESH LIVE TABLE FactHoldings (${FactHoldings.schema}) AS
+SELECT
   hh_h_t_id tradeid,
   hh_t_id currenttradeid,
   sk_customerid,
@@ -634,17 +636,17 @@ CREATE OR REFRESH LIVE TABLE FactHoldings (${FactHoldings.schema}) AS SELECT
   sk_closetimeid sk_timeid,
   tradeprice currentprice,
   hh_after_qty currentholding,
-  hh.batchid
-FROM (
-  SELECT 
-    * ,
-    1 batchid
-  FROM LIVE.HoldingHistory
-  UNION ALL
-  SELECT * except(cdc_flag, cdc_dsn)
-  FROM LIVE.HoldingIncremental) hh
-JOIN LIVE.DimTrade dt
-  ON tradeid = hh_t_id
+  hh.batchid -- FROM (
+  --   SELECT
+  --     * ,
+  --     1 batchid
+  --   FROM LIVE.HoldingHistory
+  --   UNION ALL
+  --   SELECT * except(cdc_flag, cdc_dsn)
+  --   FROM LIVE.HoldingIncremental) hh
+FROM
+  unified_holdinghistory hh
+  JOIN LIVE.DimTrade dt ON tradeid = hh_t_id
 
 -- COMMAND ----------
 
