@@ -9,6 +9,9 @@ CUST_MGMT_PART_RATIO  = 0.047
 workflow_api_endpoint = "/api/2.1/jobs/create"
 pipeline_api_endpoint = "/api/2.0/pipelines"
 
+# Build complete dag_args for workflow generation
+dag_args = build_dag_args()
+
 # COMMAND ----------
 
 def generate_dag(template_path, dag_args):

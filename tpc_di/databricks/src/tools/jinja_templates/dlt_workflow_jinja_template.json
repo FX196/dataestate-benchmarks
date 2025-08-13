@@ -58,13 +58,57 @@
     ],
     "tasks": [
         {
+            "task_key": "Cleanup-Ingestion-Directory",
+            "run_if": "ALL_SUCCESS",
+            "notebook_task": {
+                "notebook_path": "{{ repo_src_path }}/tools/batch_cleanup",
+                "base_parameters": {
+                    "job_name": "{{ job_name }}"
+                },
+                "source": "WORKSPACE"
+            },
+            "job_cluster_key": "{{ job_name }}",
+            "timeout_seconds": 0,
+            "email_notifications": {
+                "no_alert_for_skipped_runs": false
+            }
+        },
+        {
+            "task_key": "Prepare-Batch-1",
+            "run_if": "ALL_SUCCESS",
+            "depends_on": [
+                {
+                    "task_key": "Cleanup-Ingestion-Directory"
+                }
+            ],
+            "notebook_task": {
+                "notebook_path": "{{ repo_src_path }}/tools/batch_preparation",
+                "base_parameters": {
+                    "central_path": "{{ tpcdi_directory }}sf={{ scale_factor }}",
+                    "job_name": "{{ job_name }}",
+                    "batch_number": "1"
+                },
+                "source": "WORKSPACE"
+            },
+            "job_cluster_key": "{{ job_name }}",
+            "timeout_seconds": 0,
+            "email_notifications": {
+                "no_alert_for_skipped_runs": false
+            }
+        },
+        {
             "task_key": "Load-CustomerMgmt-XML-File",
             "run_if": "ALL_SUCCESS",
+            "depends_on": [
+                {
+                    "task_key": "Prepare-Batch-1"
+                }
+            ],
             "notebook_task": {
                 "notebook_path": "{{ repo_src_path }}/native_notebooks/bronze/CustomerMgmtRaw",
                 "base_parameters": {
                     "wh_db": "{{ wh_target }}_DLT_{{ scale_factor }}",
-                    "tpcdi_directory": "{{ tpcdi_directory }}",
+                    "tpcdi_directory": "/tmp/tpcdi/ingestion/{{ job_name }}/",
                     "scale_factor": "{{ scale_factor }}"
                 },
                 "source": "WORKSPACE"
@@ -83,7 +127,7 @@
             }
         },
         {
-            "task_key": "TPC-DI-DLT-PIPELINE",
+            "task_key": "TPC-DI-DLT-PIPELINE-Batch-1",
             "run_if": "ALL_SUCCESS",
             "depends_on": [
                 {
@@ -93,6 +137,86 @@
             "pipeline_task": {
                 "pipeline_id": "{{ pipeline_id }}",
                 "full_refresh": true
+            },
+            "timeout_seconds": 0,
+            "email_notifications": {
+                "no_alert_for_skipped_runs": false
+            }
+        },
+        {
+            "task_key": "Prepare-Batch-2",
+            "run_if": "ALL_SUCCESS",
+            "depends_on": [
+                {
+                    "task_key": "TPC-DI-DLT-PIPELINE-Batch-1"
+                }
+            ],
+            "notebook_task": {
+                "notebook_path": "{{ repo_src_path }}/tools/batch_preparation",
+                "base_parameters": {
+                    "central_path": "{{ tpcdi_directory }}sf={{ scale_factor }}",
+                    "job_name": "{{ job_name }}",
+                    "batch_number": "2"
+                },
+                "source": "WORKSPACE"
+            },
+            "job_cluster_key": "{{ job_name }}",
+            "timeout_seconds": 0,
+            "email_notifications": {
+                "no_alert_for_skipped_runs": false
+            }
+        },
+        {
+            "task_key": "TPC-DI-DLT-PIPELINE-Batch-2",
+            "run_if": "ALL_SUCCESS",
+            "depends_on": [
+                {
+                    "task_key": "Prepare-Batch-2"
+                }
+            ],
+            "pipeline_task": {
+                "pipeline_id": "{{ pipeline_id }}",
+                "full_refresh": false
+            },
+            "timeout_seconds": 0,
+            "email_notifications": {
+                "no_alert_for_skipped_runs": false
+            }
+        },
+        {
+            "task_key": "Prepare-Batch-3",
+            "run_if": "ALL_SUCCESS",
+            "depends_on": [
+                {
+                    "task_key": "TPC-DI-DLT-PIPELINE-Batch-2"
+                }
+            ],
+            "notebook_task": {
+                "notebook_path": "{{ repo_src_path }}/tools/batch_preparation",
+                "base_parameters": {
+                    "central_path": "{{ tpcdi_directory }}sf={{ scale_factor }}",
+                    "job_name": "{{ job_name }}",
+                    "batch_number": "3"
+                },
+                "source": "WORKSPACE"
+            },
+            "job_cluster_key": "{{ job_name }}",
+            "timeout_seconds": 0,
+            "email_notifications": {
+                "no_alert_for_skipped_runs": false
+            }
+        },
+        {
+            "task_key": "TPC-DI-DLT-PIPELINE-Batch-3",
+            "run_if": "ALL_SUCCESS",
+            "depends_on": [
+                {
+                    "task_key": "Prepare-Batch-3"
+                }
+            ],
+            "pipeline_task": {
+                "pipeline_id": "{{ pipeline_id }}",
+                "full_refresh": false
             },
             "timeout_seconds": 0,
             "email_notifications": {
