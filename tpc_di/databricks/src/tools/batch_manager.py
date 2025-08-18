@@ -74,6 +74,67 @@ def prepare_batch_for_pipeline(central_path, job_name, batch_number):
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC # Batch Manager Notebook
+# MAGIC This notebook handles both batch preparation and cleanup operations based on the operation parameter.
+# MAGIC 
+# MAGIC **Parameters:**
+# MAGIC - `operation`: Either "prepare" or "cleanup"
+# MAGIC - `central_path`: Central data path (required for prepare operation)
+# MAGIC - `job_name`: Job name (required for both operations) 
+# MAGIC - `batch_number`: Batch number (required for prepare operation)
+
+# COMMAND ----------
+
+# Check if this is being run as a notebook (vs imported as a module)
+try:
+    # Get the operation parameter
+    operation = dbutils.widgets.get("operation")
+    
+    if operation == "prepare":
+        # Batch Preparation Logic
+        central_path = dbutils.widgets.get("central_path")
+        job_name = dbutils.widgets.get("job_name") 
+        batch_number = int(dbutils.widgets.get("batch_number"))
+        
+        print(f"Preparing batch {batch_number} for job {job_name}")
+        print(f"Central data path: {central_path}")
+        
+        try:
+            ingestion_path = prepare_batch_for_pipeline(central_path, job_name, batch_number)
+            print(f"Successfully prepared batch {batch_number}")
+            print(f"Batch data copied to: {ingestion_path}")
+            print(f"SUCCESS: Batch {batch_number} prepared at {ingestion_path}")
+            
+        except Exception as e:
+            error_msg = f"FAILED: Error preparing batch {batch_number}: {str(e)}"
+            raise Exception(error_msg)
+    
+    elif operation == "cleanup":
+        # Batch Cleanup Logic
+        job_name = dbutils.widgets.get("job_name")
+        
+        print(f"Cleaning up ingestion directory for job: {job_name}")
+        
+        try:
+            cleanup_batch_ingestion(job_name)
+            print(f"Successfully cleaned up ingestion directory for job {job_name}")
+            dbutils.notebook.exit(f"SUCCESS: Cleaned up ingestion directory for {job_name}")
+            
+        except Exception as e:
+            error_msg = f"FAILED: Error cleaning up ingestion directory: {str(e)}"
+            print(error_msg)
+            dbutils.notebook.exit(error_msg)
+    
+    else:
+        raise ValueError(f"Invalid operation: {operation}. Must be 'prepare' or 'cleanup'")
+        
+except:
+    # If dbutils is not available, this is being imported as a module
+    pass
+
+# COMMAND ----------
+
 # Example usage:
 # ingestion_path = prepare_batch_for_pipeline("/tmp/tpcdi/sf=10", "my-job", 1)
 # cleanup_batch_ingestion("my-job", 1)  # Clean up specific batch

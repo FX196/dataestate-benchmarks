@@ -61,8 +61,9 @@
             "task_key": "Cleanup-Ingestion-Directory",
             "run_if": "ALL_SUCCESS",
             "notebook_task": {
-                "notebook_path": "{{ repo_src_path }}/tools/batch_cleanup",
+                "notebook_path": "{{ repo_src_path }}/tools/batch_manager",
                 "base_parameters": {
+                    "operation": "cleanup",
                     "job_name": "{{ job_name }}"
                 },
                 "source": "WORKSPACE"
@@ -82,8 +83,9 @@
                 }
             ],
             "notebook_task": {
-                "notebook_path": "{{ repo_src_path }}/tools/batch_preparation",
+                "notebook_path": "{{ repo_src_path }}/tools/batch_manager",
                 "base_parameters": {
+                    "operation": "prepare",
                     "central_path": "{{ tpcdi_directory }}sf={{ scale_factor }}",
                     "job_name": "{{ job_name }}",
                     "batch_number": "1"
@@ -152,8 +154,9 @@
                 }
             ],
             "notebook_task": {
-                "notebook_path": "{{ repo_src_path }}/tools/batch_preparation",
+                "notebook_path": "{{ repo_src_path }}/tools/batch_manager",
                 "base_parameters": {
+                    "operation": "prepare",
                     "central_path": "{{ tpcdi_directory }}sf={{ scale_factor }}",
                     "job_name": "{{ job_name }}",
                     "batch_number": "2"
@@ -192,8 +195,9 @@
                 }
             ],
             "notebook_task": {
-                "notebook_path": "{{ repo_src_path }}/tools/batch_preparation",
+                "notebook_path": "{{ repo_src_path }}/tools/batch_manager",
                 "base_parameters": {
+                    "operation": "prepare",
                     "central_path": "{{ tpcdi_directory }}sf={{ scale_factor }}",
                     "job_name": "{{ job_name }}",
                     "batch_number": "3"
