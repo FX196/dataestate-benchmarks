@@ -501,6 +501,11 @@ LEFT JOIN LIVE.tempSumFiBasicEps f
 
 -- MAGIC %md
 -- MAGIC # DimTrade
+-- MAGIC
+-- MAGIC Unlike other dimension tables in the Data Warehouse, DimTrade is not maintained as a
+-- MAGIC history-tracking dimension. There are two state changes of concern for a trade: When it was
+-- MAGIC initiated and when it was completed or cancelled. Therefore the record has date and time
+-- MAGIC fields for the starting and ending states.
 
 -- COMMAND ----------
 
@@ -620,6 +625,10 @@ JOIN LIVE.DimAccount da
 
 -- MAGIC %md
 -- MAGIC # FactHoldings
+-- MAGIC
+-- MAGIC HoldingHistory.txt
+-- MAGIC
+-- MAGIC CDC_FLAG can only be 'I'
 
 -- COMMAND ----------
 
@@ -636,22 +645,19 @@ SELECT
   sk_closetimeid sk_timeid,
   tradeprice currentprice,
   hh_after_qty currentholding,
-  hh.batchid -- FROM (
-  --   SELECT
-  --     * ,
-  --     1 batchid
-  --   FROM LIVE.HoldingHistory
-  --   UNION ALL
-  --   SELECT * except(cdc_flag, cdc_dsn)
-  --   FROM LIVE.HoldingIncremental) hh
+  hh.batchid
 FROM
-  unified_holdinghistory hh
+  LIVE.unified_holdinghistory hh
   JOIN LIVE.DimTrade dt ON tradeid = hh_t_id
 
 -- COMMAND ----------
 
 -- MAGIC %md
 -- MAGIC # FactCashBalances
+-- MAGIC
+-- MAGIC CashTransaction.txt
+-- MAGIC
+-- MAGIC CDC_FLAG can only be 'I'
 
 -- COMMAND ----------
 
@@ -667,13 +673,7 @@ FROM (
     to_date(ct_dts) datevalue,
     sum(ct_amt) account_daily_total,
     batchid
-  FROM (
-    SELECT * , 1 batchid
-    FROM LIVE.CashTransactionHistory
-    UNION ALL
-    SELECT * except(cdc_flag, cdc_dsn)
-    FROM LIVE.CashTransactionIncremental
-  )
+  FROM LIVE.unified_cashtransaction
   GROUP BY
     accountid,
     datevalue,
@@ -690,6 +690,10 @@ JOIN LIVE.DimAccount a
 
 -- MAGIC %md
 -- MAGIC # FactWatches
+-- MAGIC
+-- MAGIC WatchHistory.txt
+-- MAGIC
+-- MAGIC CDC_FLAG can only be 'I'
 
 -- COMMAND ----------
 
@@ -705,9 +709,7 @@ FROM (
     wh.w_dts,
     batchid 
   FROM (
-    SELECT *, 1 batchid FROM STREAM(LIVE.WatchHistory)
-    UNION ALL
-    SELECT * except(cdc_flag, cdc_dsn) FROM STREAM(LIVE.WatchIncremental)
+    STREAM(LIVE.unified_watchhistory)
   ) wh
   JOIN LIVE.DimDate d
     ON d.datevalue = date(wh.w_dts))

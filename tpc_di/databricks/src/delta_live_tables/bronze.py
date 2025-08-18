@@ -137,19 +137,3 @@ def FinWire():
     .option("pathGlobfilter", spark.conf.get('FinWire.filename')) \
     .load(f"{spark.conf.get('files_directory')}/sf={spark.conf.get('scale_factor')}/{spark.conf.get('FinWire.path')}") \
     .withColumn('rectype', F.substring(F.col('value'), 16, 3))
-
-# COMMAND ----------
-
-# MAGIC %md
-# MAGIC ## Separating out DailyMarketHistorical since the historical table is very large and it is faster to just define as view and not write twice
-# MAGIC * In this case, the view doesn't cause an issue with collectmetrics forcing execution out of photon and into JVM since the subsequent bounded window cannot be performed in Photon as of DBR 11.3
-
-# COMMAND ----------
-
-@dlt.table
-def DailyMarketHistorical():
-  return spark.read.csv(f"{spark.conf.get('files_directory')}/sf={spark.conf.get('scale_factor')}/Batch1/{spark.conf.get('DailyMarketHistorical.filename')}", 
-                        schema=spark.conf.get('DailyMarketHistorical.schema'), 
-                        sep=spark.conf.get('DailyMarketHistorical.sep'), 
-                        header=spark.conf.get('DailyMarketHistorical.header'), 
-                        inferSchema=False).withColumn('batchid', F.lit(1))
